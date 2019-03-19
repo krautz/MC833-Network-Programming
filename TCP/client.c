@@ -58,8 +58,8 @@ int main(int argc, char *argv[]) {
     char s[INET6_ADDRSTRLEN];
 
 
-    if (argc != 2) {
-        fprintf(stderr,"Usage: client hostname\n");
+    if (argc != 3) {
+        fprintf(stderr,"Usage: ./client hostname request_code\n");
         exit(1);
     }
 
@@ -110,6 +110,12 @@ int main(int argc, char *argv[]) {
 
     // clear server info as it will no longer be used
     freeaddrinfo(servinfo);
+
+    // send request to server
+    if (send(sockfd, argv[2], strlen(argv[2]), 0) == -1) {
+        printf("Error while sending the request");
+        exit(1);
+    }
 
     // receive response from server, if it's ok print it
     if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
