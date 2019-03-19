@@ -24,6 +24,9 @@
 // how many pending connections queue will hold
 #define BACKLOG 5
 
+// max number of bytes we can get at once
+#define MAXDATASIZE 100
+
 
 /*
  * I save and restore errno
@@ -84,6 +87,12 @@ int main (void) {
 
     // store server get address info error code
     int rv;
+
+    // buffer to read requests from and buffer to write response
+    char buf[MAXDATASIZE], response[MAXDATASIZE];
+
+    // received bytes from request
+    int numbytes;
 
     // set hints data structure
     memset(&hints, 0, sizeof hints);
@@ -177,7 +186,44 @@ int main (void) {
             // child doesn't need the listener
             close(sockfd);
 
-            if (send(new_fd, "Hello, world!", 13, 0) == -1)
+            // receive request from client, if it's ok print it
+            if ((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1) {
+                printf("recv error");
+                exit(1);
+            }
+            buf[numbytes] = '\0';
+            printf("server: received '%s'\n",buf);
+
+            if (strcmp(buf, "1\0") == 0) {
+                // CALL FUNCTION TO DEAL WITH CODE 1 AND WRITE IT ON RESPONSE
+                strcpy(response, "Received 1");
+            }
+            else if (strcmp(buf, "2\0") == 0) {
+                // CALL FUNCTION TO DEAL WITH CODE 2 AND WRITE IT ON RESPONSE
+                strcpy(response, "Received 2");
+            }
+            else if (strcmp(buf, "3\0") == 0) {
+                // CALL FUNCTION TO DEAL WITH CODE 3 AND WRITE IT ON RESPONSE
+                strcpy(response, "Received 3");
+            }
+            else if (strcmp(buf, "4\0") == 0) {
+                // CALL FUNCTION TO DEAL WITH CODE 4 AND WRITE IT ON RESPONSE
+                strcpy(response, "Received 4");
+            }
+            else if (strcmp(buf, "5\0") == 0) {
+                // CALL FUNCTION TO DEAL WITH CODE 5 AND WRITE IT ON RESPONSE
+                strcpy(response, "Received 5");
+            }
+            else if (strcmp(buf, "6\0") == 0) {
+                // CALL FUNCTION TO DEAL WITH CODE 6 AND WRITE IT ON RESPONSE
+                strcpy(response, "Received 6");
+            }
+            else {
+                strcpy(response, "Invalid Code. Send a valid code (1 to 6)");
+            }
+
+            // return the response from the command received
+            if (send(new_fd, response, strlen(response), 0) == -1)
                 printf("Error while sending response\n");
 
             // close child new socket
