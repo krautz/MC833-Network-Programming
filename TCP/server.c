@@ -163,24 +163,21 @@ int main (void) {
     DATABASE CALLS TESTS
     */
     test_database();
-    person_data person;
-    person_data list_person[50];
+    char dbres[1048576];
+    
 
-    printf("%d\n", find_user_by_email("carlos_silva@gmail.com", &person));
-    printf("%s\n", person.name);
-    printf("%d\n", find_user_by_email("nao@gmail.com", &person));
-    printf("%s\n", person.name);
+    printf("%d\n", list_user_by_education("Ciencia da computacao", dbres));
+    printf("%s\n", dbres);
+    printf("%d\n", get_user_by_email("carlos_silva@gmail.com", dbres));
+    printf("%s\n", dbres);
+    printf("%d\n", list_skills_by_city("Campinas", dbres));
+    printf("%s\n", dbres);
 
-    printf("%d\n", find_user_by_education("Ciencia da computacao", list_person));
-    printf("%s\n", list_person[0].name);
-    printf("%s\n", list_person[1].name);
-    printf("%d\n", find_user_by_education("Engenharia da computacao", list_person));
-    printf("%s\n", list_person[0].name);
-
-    printf("Server: waiting for connections...\n");
     /*
     END DATABASE CALLS TESTS
     */
+
+    printf("Server: waiting for connections...\n");
 
     // accept and deal with incoming requests
     while(1) {
