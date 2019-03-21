@@ -12,7 +12,7 @@ int list_skills_by_city(char* city, char* res);
 int add_skill(int pk, char* res);
 
 // Dado o email do perfil,retornar sua experiência
-int find_user_by_education(char* email, char* res);
+int list_experience_by_email(char* email, char* res);
 
 // Listar todas as informações de todos os perfis
 int list_all(char* res);

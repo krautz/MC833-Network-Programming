@@ -20,7 +20,9 @@
       "city": "Campinas",
       "education" : "Ciencia da computacao",
       "skills" : ["IoT", "Sistemas distribuidos"],
-      "experiences": [ "Estagio de 1 ano na empresa X, onde trabalhei como analista de dados" ]
+      "experiences": [ 
+        "Monitor de informatica por 1 semestre na UNICAMP"
+      ]
     },
     {
       "pk" : 3,
@@ -31,7 +33,11 @@
       "city": "Sao Paulo",
       "education" : "Engenharia da computacao",
       "skills" : ["Computacao grafica"],
-      "experiences": [ "Estagio de 1 ano na empresa Y, onde trabalhei como engenheiro" ]
+      "experiences": [ 
+        "Estagio de 1 ano na empresa Y, onde trabalhei como engenheiro",
+        "Trabalho voluntario na ONG XYZ",
+        "Aulas de violino particular desde 2010"
+      ]
     }
   ]
 }

@@ -2,7 +2,7 @@
 #include<string.h>
 #include"database.h"
 
-#define BUFFER_SIZE 100
+#define BUFFER_SIZE 1048576
 
 // Auxiliar function used only inside database.c
 void read_database_file(struct json_object **database){
@@ -110,7 +110,28 @@ int list_skills_by_city(char* city, char* res){
 int add_skill(int pk, char* res);
 
 // Dado o email do perfil,retornar sua experiência
-int find_user_by_education(char* email, char* res);
+int list_experience_by_email(char* email, char* res){
+	struct json_object *database;
+	int n_persons;
+
+	read_database_file(&database);
+	n_persons = json_object_array_length(database);
+
+	for(int i = 0; i < n_persons; i++) {
+		struct json_object *dbperson;
+		struct json_object *dbemail;
+		struct json_object *dbexperiences;
+
+		dbperson = json_object_array_get_idx(database, i);
+		json_object_object_get_ex(dbperson, "email", &dbemail);
+		if (strcmp(json_object_get_string(dbemail), email) == 0){
+			json_object_object_get_ex(dbperson, "experiences", &dbexperiences);
+			strcpy(res, json_object_to_json_string_ext(dbexperiences, JSON_C_TO_STRING_PRETTY));
+			return json_object_array_length(dbexperiences);
+		}
+	}
+	return 0;
+}
 
 // Listar todas as informações de todos os perfis
 int list_all(char* res){
