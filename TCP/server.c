@@ -95,6 +95,9 @@ int main (void) {
     // received bytes from request
     int numbytes;
 
+    // request parameter
+    char param[150];
+
     // set hints data structure
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC; // AF_INET or AF_INET6
@@ -164,7 +167,6 @@ int main (void) {
     */
     test_database();
     char dbres[1048576];
-    
 
     printf("%d\n", list_user_by_education("Ciencia da computacao", dbres));
     printf("%s\n", dbres);
@@ -217,38 +219,35 @@ int main (void) {
                 exit(1);
             }
             buf[numbytes] = '\0';
-            printf("server: received '%s'\n",buf);
+            printf("server: received '%s'\n", buf);
 
-            if (strcmp(buf, "1\0") == 0) {
-                // CALL FUNCTION TO DEAL WITH CODE 1 AND WRITE IT ON RESPONSE
-                strcpy(response, "Received 1");
+            if (strlen(buf) >= 3)
+                strcpy(param, buf + 2);
+
+            if (buf[0] == '1') {
+                list_user_by_education(param, dbres);
             }
-            else if (strcmp(buf, "2\0") == 0) {
-                // CALL FUNCTION TO DEAL WITH CODE 2 AND WRITE IT ON RESPONSE
-                strcpy(response, "Received 2");
+            else if (buf[0] == '2') {
+                list_skills_by_city(param, dbres);
             }
-            else if (strcmp(buf, "3\0") == 0) {
-                // CALL FUNCTION TO DEAL WITH CODE 3 AND WRITE IT ON RESPONSE
-                strcpy(response, "Received 3");
+            else if (buf[0] == '3') {
+                add_skill(param[0] - 48, param + 2, dbres);
             }
-            else if (strcmp(buf, "4\0") == 0) {
-                // CALL FUNCTION TO DEAL WITH CODE 4 AND WRITE IT ON RESPONSE
-                strcpy(response, "Received 4");
+            else if (buf[0] == '4') {
+                list_experience_by_email(param, dbres);
             }
-            else if (strcmp(buf, "5\0") == 0) {
-                // CALL FUNCTION TO DEAL WITH CODE 5 AND WRITE IT ON RESPONSE
-                strcpy(response, "Received 5");
+            else if (buf[0] == '5') {
+                list_all(dbres);
             }
-            else if (strcmp(buf, "6\0") == 0) {
-                // CALL FUNCTION TO DEAL WITH CODE 6 AND WRITE IT ON RESPONSE
-                strcpy(response, "Received 6");
+            else if (buf[0] == '6') {
+                get_user_by_email(param, dbres);
             }
             else {
-                strcpy(response, "Invalid Code. Send a valid code (1 to 6)");
+                strcpy(dbres, "Invalid Code. Send a valid code (1 to 6)");
             }
 
             // return the response from the command received
-            if (send(new_fd, response, strlen(response), 0) == -1)
+            if (send(new_fd, dbres, strlen(dbres), 0) == -1)
                 printf("Error while sending response\n");
 
             // close child new socket
