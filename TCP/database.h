@@ -9,7 +9,7 @@ int list_user_by_education(char* education, char* res);
 int list_skills_by_city(char* city, char* res);
 
 // Acrescentar uma nova experiência em um perfil
-int add_skill(int pk, char* res);
+int add_skill(int pk, char* experience, char* res);
 
 // Dado o email do perfil,retornar sua experiência
 int list_experience_by_email(char* email, char* res);

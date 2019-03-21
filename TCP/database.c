@@ -107,7 +107,40 @@ int list_skills_by_city(char* city, char* res){
 }
 
 // Acrescentar uma nova experiência em um perfil
-int add_skill(int pk, char* res);
+int add_skill(int pk, char* experience, char* res){
+	struct json_object *database;
+	int n_persons;
+
+	read_database_file(&database);
+	n_persons = json_object_array_length(database);
+
+	for(int i = 0; i < n_persons; i++) {
+		struct json_object *dbperson;
+		struct json_object *dbpk;
+		
+		dbperson = json_object_array_get_idx(database, i);
+		json_object_object_get_ex(dbperson, "pk", &dbpk);
+
+		if (json_object_get_int(dbpk) == pk){
+			struct json_object *dbexperiences;
+			struct json_object *new_experience;
+			
+			new_experience = json_object_new_string(experience);
+
+			json_object_object_get_ex(dbperson, "experiences", &dbexperiences);
+			json_object_array_sort(dbexperiences, my_strcmp);
+
+			if (json_object_array_bsearch(new_experience ,dbexperiences, my_strcmp) == NULL){
+				json_object_array_add(dbexperiences, new_experience);
+				strcpy(res, json_object_to_json_string_ext(dbperson, JSON_C_TO_STRING_PRETTY));
+				
+				write_database_file(database);
+				return 1;
+			}
+		}
+	}
+	return 0;
+}
 
 // Dado o email do perfil,retornar sua experiência
 int list_experience_by_email(char* email, char* res){
@@ -120,11 +153,13 @@ int list_experience_by_email(char* email, char* res){
 	for(int i = 0; i < n_persons; i++) {
 		struct json_object *dbperson;
 		struct json_object *dbemail;
-		struct json_object *dbexperiences;
 
 		dbperson = json_object_array_get_idx(database, i);
 		json_object_object_get_ex(dbperson, "email", &dbemail);
+
 		if (strcmp(json_object_get_string(dbemail), email) == 0){
+			struct json_object *dbexperiences;
+
 			json_object_object_get_ex(dbperson, "experiences", &dbexperiences);
 			strcpy(res, json_object_to_json_string_ext(dbexperiences, JSON_C_TO_STRING_PRETTY));
 			return json_object_array_length(dbexperiences);

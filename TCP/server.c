@@ -176,6 +176,8 @@ int main (void) {
     printf("%s\n", dbres);
     printf("%d\n", list_experience_by_email("carlos_silva@gmail.com", dbres));
     printf("%s\n", dbres);
+    printf("%d\n", add_skill(1, "Presidente da empresa junior", dbres));
+    printf("%s\n", dbres);
 
     /*
     END DATABASE CALLS TESTS
