@@ -57,11 +57,19 @@ int main(int argc, char *argv[]) {
     // string with maximum address length
     char s[INET6_ADDRSTRLEN];
 
+    // string to store request
+    char request[150];
 
-    if (argc != 3) {
-        fprintf(stderr,"Usage: ./client hostname request_code\n");
+    if (argc != 5) {
+        fprintf(stderr,"Usage: ./client HOSTNAME PORT REQ_CODE [PARAMS]\n");
         exit(1);
     }
+
+    // set the request
+    strcpy(request, argv[3]);
+    strcat(request, " ");
+    strcat(request, argv[4]);
+    printf("Request: %s\n", request);
 
     // set hints data structure
     memset(&hints, 0, sizeof hints);
@@ -69,7 +77,7 @@ int main(int argc, char *argv[]) {
     hints.ai_socktype = SOCK_STREAM;
 
     // get server address info
-    if ((rv = getaddrinfo(argv[1], PORT, &hints, &servinfo)) != 0) {
+    if ((rv = getaddrinfo(argv[1], argv[2], &hints, &servinfo)) != 0) {
         printf("getaddrinfo: %s\n", gai_strerror(rv));
         return 1;
     }
@@ -112,7 +120,7 @@ int main(int argc, char *argv[]) {
     freeaddrinfo(servinfo);
 
     // send request to server
-    if (send(sockfd, argv[2], strlen(argv[2]), 0) == -1) {
+    if (send(sockfd, request, strlen(request), 0) == -1) {
         printf("Error while sending the request");
         exit(1);
     }
