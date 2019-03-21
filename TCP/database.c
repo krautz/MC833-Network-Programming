@@ -17,6 +17,14 @@ void read_database_file(struct json_object **database){
 	json_object_object_get_ex(parsed_json, "database", database);
 }
 
+void write_database_file(struct json_object *database){
+	FILE *fp;
+
+	fp = fopen("database.json","w");
+	fputs(json_object_to_json_string_ext(database, JSON_C_TO_STRING_PRETTY), fp);
+	fclose(fp);
+}
+
 int test_database() {
 	struct json_object *database;
 	int n_total;
