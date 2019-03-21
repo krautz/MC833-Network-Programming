@@ -20,7 +20,7 @@
 #define PORT "3490"
 
 // max number of bytes we can get at once
-#define MAXDATASIZE 100
+#define MAXDATASIZE 1048576
 
 
 /*

@@ -2,7 +2,7 @@
 #include<string.h>
 #include"database.h"
 
-#define BUFFER_SIZE 2048
+#define BUFFER_SIZE 100
 
 // Auxiliar function used only inside database.c
 void read_database_file(struct json_object **database){
@@ -113,7 +113,14 @@ int add_skill(int pk, char* res);
 int find_user_by_education(char* email, char* res);
 
 // Listar todas as informações de todos os perfis
-int list_all(char* res);
+int list_all(char* res){
+	struct json_object *database;
+	int n_persons;
+
+	read_database_file(&database);
+	strcpy(res, json_object_to_json_string_ext(database, JSON_C_TO_STRING_PRETTY));
+	return json_object_array_length(database);
+}
 
 // Dado o email de um perfil, retornar suas informações
 int get_user_by_email(char* email, char* res){

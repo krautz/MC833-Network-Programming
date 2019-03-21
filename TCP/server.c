@@ -172,6 +172,8 @@ int main (void) {
     printf("%s\n", dbres);
     printf("%d\n", list_skills_by_city("Campinas", dbres));
     printf("%s\n", dbres);
+    printf("%d\n", list_all(dbres));
+    printf("%s\n", dbres);
 
     /*
     END DATABASE CALLS TESTS
