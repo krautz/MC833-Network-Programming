@@ -12,7 +12,7 @@ mkdir build
 cd build
 cmake ../ -DBUILD_SHARED_LIBS=OFF
 make
-cp libjson-c.a ../../
+cp libjson-c.a ../../../
 
 echo "Compiling library"
 cd ..
