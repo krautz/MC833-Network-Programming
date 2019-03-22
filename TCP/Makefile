@@ -1,5 +1,5 @@
 CC := gcc
-LDFLAGS += -ljson-c libjson-c.a
+LDFLAGS += -ljson-c libjson-c.a -I ./lib/
 
 all: server client
 
