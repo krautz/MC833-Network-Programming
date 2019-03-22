@@ -11,6 +11,7 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <sys/time.h>
 
 
 /*
@@ -64,6 +65,8 @@ int main(int argc, char *argv[]) {
         fprintf(stderr,"Usage: ./client HOSTNAME PORT REQ_CODE [PARAMS]\n");
         exit(1);
     }
+    struct timeval tv1, tv2;
+    gettimeofday(&tv1, NULL);
 
     // set the request
     strcpy(request, argv[3]);
@@ -91,7 +94,7 @@ int main(int argc, char *argv[]) {
             printf("Client error on creating socket\n");
             continue;
         }
-
+    
         // connect socket to server and verify if it was connected correctly
         if (connect(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
             close(sockfd);
@@ -131,6 +134,12 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
     buf[numbytes] = '\0';
+
+    gettimeofday(&tv2, NULL);
+
+    int microseconds = (tv2.tv_sec - tv1.tv_sec) * 1000000 + ((int)tv2.tv_usec - (int)tv1.tv_usec);
+    int milliseconds = microseconds/1000;
+    printf("Took %d ms to execute \n", milliseconds); 
     printf("client: received '%s'\n",buf);
 
     // close the socket
