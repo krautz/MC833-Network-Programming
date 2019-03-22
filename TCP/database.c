@@ -11,17 +11,21 @@ void read_database_file(struct json_object **database){
 	FILE *fp;
 
 	fp = fopen("database.json","r");
-	fread(buffer, 2048, 1, fp);
+	fread(buffer, BUFFER_SIZE, 1, fp);
 	fclose(fp);
 	parsed_json = json_tokener_parse(buffer);
 	json_object_object_get_ex(parsed_json, "database", database);
 }
 
 void write_database_file(struct json_object *database){
+	struct json_object *parsed_json;
 	FILE *fp;
 
+	parsed_json = json_object_new_object();
+	json_object_object_add(parsed_json, "database", database);
+
 	fp = fopen("database.json","w");
-	fputs(json_object_to_json_string_ext(database, JSON_C_TO_STRING_PRETTY), fp);
+	fputs(json_object_to_json_string_ext(parsed_json, JSON_C_TO_STRING_PRETTY), fp);
 	fclose(fp);
 }
 
