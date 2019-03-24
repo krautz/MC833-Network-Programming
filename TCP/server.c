@@ -19,9 +19,6 @@
 /*
  * CONSTANTS AND DEFINITIONS
  */
-// the port users will be connecting to
-#define PORT "3490"
-
 // how many pending connections queue will hold
 #define BACKLOG 5
 
@@ -58,7 +55,7 @@ void *get_in_addr(struct sockaddr *sa)
 /*
  * I am a websocket TCP server.
  */
-int main (void) {
+int main (int argc, char *argv[]) {
     // listener socket (socket file descriptor)
     int sockfd;
 
@@ -98,6 +95,11 @@ int main (void) {
     // request parameter
     char param[150];
 
+    if (argc != 2) {
+        fprintf(stderr,"Usage: ./server PORT\n");
+        exit(1);
+    }
+
     // set hints data structure
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC; // AF_INET or AF_INET6
@@ -105,7 +107,7 @@ int main (void) {
     hints.ai_flags = AI_PASSIVE; // use my IP
 
     // get server address info
-    if ((rv = getaddrinfo(NULL, PORT, &hints, &servinfo)) != 0) {
+    if ((rv = getaddrinfo(NULL, argv[1], &hints, &servinfo)) != 0) {
         printf("getaddrinfo: %s\n", gai_strerror(rv));
         return 1;
     }
