@@ -13,6 +13,7 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <sys/time.h>
 
 #include"database.h"
 
@@ -94,6 +95,9 @@ int main (int argc, char *argv[]) {
 
     // request parameter
     char param[150];
+
+    // time of th day literals
+    struct timeval tv1, tv2;
 
     if (argc != 2) {
         fprintf(stderr,"Usage: ./server PORT\n");
@@ -226,6 +230,9 @@ int main (int argc, char *argv[]) {
             if (strlen(buf) >= 3)
                 strcpy(param, buf + 2);
 
+            // get time of the day
+            gettimeofday(&tv1, NULL);
+
             if (buf[0] == '1') {
                 list_user_by_education(param, dbres);
             }
@@ -247,6 +254,15 @@ int main (int argc, char *argv[]) {
             else {
                 strcpy(dbres, "Invalid Code. Send a valid code (1 to 6)");
             }
+
+            // get time at the end of the db operation
+            gettimeofday(&tv2, NULL);
+
+            // calculate time spent
+            int microseconds = (tv2.tv_sec - tv1.tv_sec) * 1000000 + ((int)tv2.tv_usec - (int)tv1.tv_usec);
+            int milliseconds = microseconds/1000;
+
+            printf("Took %d us to execute \n", microseconds);
 
             // return the response from the command received
             if (send(new_fd, dbres, strlen(dbres), 0) == -1)
