@@ -58,12 +58,13 @@ int main(int argc, char *argv[]) {
     // string to store request
     char request[150];
 
+    // time of th day literals
+    struct timeval tv1, tv2;
+
     if (argc != 5) {
         fprintf(stderr,"Usage: ./client HOSTNAME PORT REQ_CODE [PARAMS]\n");
         exit(1);
     }
-    struct timeval tv1, tv2;
-    gettimeofday(&tv1, NULL);
 
     // set the request
     strcpy(request, argv[3]);
@@ -119,7 +120,8 @@ int main(int argc, char *argv[]) {
     // clear server info as it will no longer be used
     freeaddrinfo(servinfo);
 
-    // send request to server
+    // send request to server and get the time
+    gettimeofday(&tv1, NULL);
     if (send(sockfd, request, strlen(request), 0) == -1) {
         printf("Error while sending the request");
         exit(1);
@@ -132,12 +134,16 @@ int main(int argc, char *argv[]) {
     }
     buf[numbytes] = '\0';
 
+    // get time at the end of the request
     gettimeofday(&tv2, NULL);
 
+    // calculate time spent
     int microseconds = (tv2.tv_sec - tv1.tv_sec) * 1000000 + ((int)tv2.tv_usec - (int)tv1.tv_usec);
     int milliseconds = microseconds/1000;
-    printf("Took %d ms to execute \n", milliseconds);
+
     printf("client: received '%s'\n",buf);
+
+    printf("Took %d us to execute \n", microseconds);
 
     // close the socket
     close(sockfd);
