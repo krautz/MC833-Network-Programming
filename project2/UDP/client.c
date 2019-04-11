@@ -41,7 +41,7 @@ void *get_in_addr(struct sockaddr *sa)
  */
 int main(int argc, char *argv[]) {
     // sender socket (socket file descriptor)
-    int sockfd, numbytes;
+    int sockfd;
 
     // buffer to read response from
     char buf[MAXDATASIZE];
@@ -51,6 +51,9 @@ int main(int argc, char *argv[]) {
 
     // store server get address info error code
     int rv;
+
+    // received bytes from request
+    int numbytes;
 
     // string with maximum address length
     char s[INET6_ADDRSTRLEN];
@@ -83,7 +86,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    // loop through all the results and connect to the first we can
+    // loop through all the results and creat the socket to the first we can
     for(p = servinfo; p != NULL; p = p->ai_next) {
 
         // create socket and verify if it was created correctly
@@ -115,6 +118,8 @@ int main(int argc, char *argv[]) {
 
     // send request to server and get the time
     gettimeofday(&tv1, NULL);
+
+    // send request
     numbytes = sendto (
         sockfd,
         request,
@@ -128,10 +133,10 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    // receive response from server, if it's ok print it
     // store size of conector's address
     int sin_size = sizeof p;
 
+    // receive response from server
     numbytes = recvfrom(
         sockfd,
         buf,
@@ -140,9 +145,8 @@ int main(int argc, char *argv[]) {
         (struct sockaddr *)&p,
         &sin_size
     );
-    printf("listener: packet is %d bytes long\n", numbytes);
-    buf[numbytes] = '\0';
 
+    // check if response is ok
     if (numbytes == -1) {
         printf("recv error");
         exit(1);
@@ -150,6 +154,10 @@ int main(int argc, char *argv[]) {
 
     // get time at the end of the request
     gettimeofday(&tv2, NULL);
+
+    // print the response
+    buf[numbytes] = '\0';
+    printf("listener: packet is %d bytes long\n", numbytes);
 
     // calculate time spent
     int microseconds = (tv2.tv_sec - tv1.tv_sec) * 1000000 + ((int)tv2.tv_usec - (int)tv1.tv_usec);
