@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
     char request[150];
 
     // time of th day literals
-    struct timeval tv1, tv2;
+    struct timeval tv, tv1, tv2;
 
     if (argc != 5) {
         fprintf(stderr,"Usage: ./client HOSTNAME PORT REQ_CODE [PARAMS]\n");
@@ -133,31 +133,54 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
+    fd_set read_fds;  // temp file descriptor list for select()
+    FD_ZERO(&read_fds);
+    // add the listener to the master set
+    FD_SET(sockfd, &read_fds);
+    // tv.tv_sec = 3;
+    tv.tv_usec = 3000000;
+    if (select(sockfd + 1, &read_fds, NULL, NULL, &tv) == -1) {
+        perror("select");
+        exit(4);
+    }
+
     // store size of conector's address
     int sin_size = sizeof p;
 
-    // receive response from server
-    numbytes = recvfrom(
-        sockfd,
-        buf,
-        MAXDATASIZE - 1,
-        0,
-        (struct sockaddr *)&p,
-        &sin_size
-    );
+    while (FD_ISSET(sockfd, &read_fds)) {
+        printf("in\n");
+        // receive response from server
+        numbytes = recvfrom(
+            sockfd,
+            buf,
+            MAXDATASIZE - 1,
+            0,
+            (struct sockaddr *)&p,
+            &sin_size
+        );
 
-    // check if response is ok
-    if (numbytes == -1) {
-        printf("recv error");
-        exit(1);
+        // check if response is ok
+        if (numbytes == -1) {
+            printf("recv error");
+            exit(1);
+        }
+
+        buf[numbytes] = '\0';
+
+        printf("listener: packet is %d bytes long\n", numbytes);
+        if (select(sockfd + 1, &read_fds, NULL, NULL, &tv) == -1) {
+            perror("select");
+            exit(4);
+        }
     }
+
 
     // get time at the end of the request
     gettimeofday(&tv2, NULL);
 
     // print the response
-    buf[numbytes] = '\0';
-    printf("listener: packet is %d bytes long\n", numbytes);
+    // buf[numbytes] = '\0';
+    // printf("listener: packet is %d bytes long\n", numbytes);
 
     // calculate time spent
     int microseconds = (tv2.tv_sec - tv1.tv_sec) * 1000000 + ((int)tv2.tv_usec - (int)tv1.tv_usec);
@@ -165,7 +188,7 @@ int main(int argc, char *argv[]) {
 
     printf("client: received '%s'\n",buf);
 
-    printf("Took %d us to execute \n", microseconds);
+    printf("Took %lf us to execute \n", (double)microseconds/1000000);
 
     // close the socket
     close(sockfd);

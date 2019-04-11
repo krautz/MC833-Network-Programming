@@ -14,6 +14,7 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <sys/time.h>
+#include <math.h>
 
 #include"database.h"
 
@@ -182,7 +183,6 @@ int main (int argc, char *argv[]) {
 
         if (buf[0] == '1') {
             list_person_info_by_email(param, dbres);
-            printf("%s\n", dbres);
         } else {
             strcpy(dbres, "Invalid Code. Send a valid code (1)");
         }
@@ -196,21 +196,23 @@ int main (int argc, char *argv[]) {
 
         printf("Took %d us to execute \n", microseconds);
 
-        // return the response from the command received
-        numbytes = sendto(
-            sockfd,
-            dbres,
-            strlen(dbres),
-            0,
-            (struct sockaddr *)&their_addr,
-            sin_size
-        );
+        for (int i = 0; i < ceil((strlen(dbres)/64000)); i++) {
+            numbytes = sendto(
+                sockfd,
+                "teste",
+                strlen("teste"),
+                0,
+                (struct sockaddr *)&their_addr,
+                sin_size
+            );
 
-        // check if it was sent correctly
-        if (numbytes == -1) {
-            printf("Error while sending the response");
-            exit(1);
+            // check if it was sent correctly
+            if (numbytes == -1) {
+                printf("Error while sending the response");
+                exit(1);
+            }
         }
+
     }
 
     return 0;
