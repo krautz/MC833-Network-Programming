@@ -20,8 +20,6 @@
 /*
  * CONSTANTS AND DEFINITIONS
  */
-// how many pending connections queue will hold
-#define BACKLOG 5
 
 // max number of bytes we can get at once
 #define MAXDATASIZE 100
@@ -49,26 +47,17 @@ int main (int argc, char *argv[]) {
     // listener socket (socket file descriptor)
     int sockfd;
 
-    // new connection socket
-    int new_fd;
-
     // server address variables
     struct addrinfo hints, *servinfo, *p;
 
     // connector's address information
     struct sockaddr_storage their_addr;
 
-    // verify error code of function calls
-    int check;
-
     // variable to store address size
     socklen_t sin_size;
 
     // struct to reap dead processes
     struct sigaction sa;
-
-    // flag for socket options
-    int yes=1;
 
     // string with maximum address length
     char s[INET6_ADDRSTRLEN];
@@ -151,6 +140,7 @@ int main (int argc, char *argv[]) {
 
     // accept and deal with incoming requests
     while(1) {
+
         // store size of conector's address
         sin_size = sizeof their_addr;
 
@@ -169,6 +159,9 @@ int main (int argc, char *argv[]) {
             exit(1);
         }
 
+        // get time of the day
+        gettimeofday(&tv1, NULL);
+
         // convert IP adress to a string and print it
         inet_ntop(
             their_addr.ss_family,
@@ -178,6 +171,7 @@ int main (int argc, char *argv[]) {
         );
         printf("Server: got packet from %s\n", s);
 
+        // print the received packet
         printf("listener: packet is %d bytes long\n", numbytes);
         buf[numbytes] = '\0';
         printf("listener: packet contains \"%s\"\n", buf);
@@ -185,9 +179,6 @@ int main (int argc, char *argv[]) {
         // get request parameters
         if (strlen(buf) >= 3)
             strcpy(param, buf + 2);
-
-        // get time of the day
-        gettimeofday(&tv1, NULL);
 
         if (buf[0] == '1') {
             list_person_info_by_email(param, dbres);
@@ -207,23 +198,20 @@ int main (int argc, char *argv[]) {
 
         // return the response from the command received
         numbytes = sendto(
-                        sockfd,
-                        dbres,
-                        strlen(dbres),
-                        0,
-                        (struct sockaddr *)&their_addr,
-                        sin_size
-                    );
+            sockfd,
+            dbres,
+            strlen(dbres),
+            0,
+            (struct sockaddr *)&their_addr,
+            sin_size
+        );
+
+        // check if it was sent correctly
         if (numbytes == -1) {
             printf("Error while sending the response");
             exit(1);
         }
-        if (numbytes == -1)
-            printf("Error while sending response\n");
-
-        // close(sockfd);
     }
 
     return 0;
-
 }
