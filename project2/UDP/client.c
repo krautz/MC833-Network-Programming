@@ -19,6 +19,7 @@
  */
 // max number of bytes we can get at once
 #define MAXDATASIZE 1048576
+#define PARTIALBUFFERSIZE 63001
 
 
 /*
@@ -45,6 +46,9 @@ int main(int argc, char *argv[]) {
 
     // buffer to read response from
     char buf[MAXDATASIZE];
+
+    // buffer to read each datagram response from
+    char buf_partial[PARTIALBUFFERSIZE];
 
     // server address variables
     struct addrinfo hints, *servinfo, *p;
@@ -73,6 +77,7 @@ int main(int argc, char *argv[]) {
     strcpy(request, argv[3]);
     strcat(request, " ");
     strcat(request, argv[4]);
+    strcat(request, "\0");
     printf("Request: %s\n", request);
 
     // set hints data structure
@@ -133,31 +138,48 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    fd_set read_fds;  // temp file descriptor list for select()
+    // temp file descriptor list for select()
+    fd_set read_fds;
+
+    // clear our set
     FD_ZERO(&read_fds);
-    // add the listener to the master set
+
+    // add the the socked descriptor to the set
     FD_SET(sockfd, &read_fds);
-    // tv.tv_sec = 3;
+
+    // set the timeout to 3 seconds
     tv.tv_usec = 3000000;
+
+    // initial timeout
     if (select(sockfd + 1, &read_fds, NULL, NULL, &tv) == -1) {
         perror("select");
         exit(4);
     }
 
+    // clear final buffer
+    strcpy(buf, "");
+
+    // store total number of bytes
+    int total = 0;
+
     // store size of conector's address
     int sin_size = sizeof p;
 
+    // receive the packetes
     while (FD_ISSET(sockfd, &read_fds)) {
-        printf("in\n");
+
         // receive response from server
         numbytes = recvfrom(
             sockfd,
-            buf,
-            MAXDATASIZE - 1,
+            buf_partial,
+            PARTIALBUFFERSIZE - 1,
             0,
             (struct sockaddr *)&p,
             &sin_size
         );
+
+        // incremental total number of bytes
+        total += numbytes;
 
         // check if response is ok
         if (numbytes == -1) {
@@ -165,30 +187,28 @@ int main(int argc, char *argv[]) {
             exit(1);
         }
 
-        buf[numbytes] = '\0';
+        // append this datagram to the final response buffer
+        strcat(buf, buf_partial);
 
-        printf("listener: packet is %d bytes long\n", numbytes);
+        printf("listener:  received packet is %d bytes long\n", numbytes);
         if (select(sockfd + 1, &read_fds, NULL, NULL, &tv) == -1) {
             perror("select");
             exit(4);
         }
     }
 
+    // set the final character of the final response
+    buf[total] = '\0';
 
     // get time at the end of the request
     gettimeofday(&tv2, NULL);
-
-    // print the response
-    // buf[numbytes] = '\0';
-    // printf("listener: packet is %d bytes long\n", numbytes);
 
     // calculate time spent
     int microseconds = (tv2.tv_sec - tv1.tv_sec) * 1000000 + ((int)tv2.tv_usec - (int)tv1.tv_usec);
     int milliseconds = microseconds/1000;
 
     printf("client: received '%s'\n",buf);
-
-    printf("Took %lf us to execute \n", (double)microseconds/1000000);
+    printf("Took %d us to execute \n", microseconds);
 
     // close the socket
     close(sockfd);
