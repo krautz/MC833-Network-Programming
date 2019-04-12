@@ -24,6 +24,8 @@
 
 // max number of bytes we can get at once
 #define MAXDATASIZE 100
+#define PARTIALBUFFERSIZE 63001
+#define MAXDATAPACKET 60000
 
 
 /*
@@ -69,6 +71,9 @@ int main (int argc, char *argv[]) {
     // buffer to read requests from and buffer to write response
     char buf[MAXDATASIZE], response[MAXDATASIZE];
 
+    // buffer to send each datagram response from
+    char buf_partial[PARTIALBUFFERSIZE];
+
     // received bytes from request
     int numbytes;
 
@@ -77,6 +82,12 @@ int main (int argc, char *argv[]) {
 
     // time of th day literals
     struct timeval tv1, tv2;
+
+    // loop variables
+    int i, j, k;
+
+    // store total bytes sent
+    int total;
 
     if (argc != 2) {
         fprintf(stderr,"Usage: ./server PORT\n");
@@ -196,15 +207,36 @@ int main (int argc, char *argv[]) {
 
         printf("Took %d us to execute \n", microseconds);
 
-        for (int i = 0; i < ceil((strlen(dbres)/64000)); i++) {
+        // initialize total bytes sent
+        total = 0;
+
+        // send initials datagrams
+        for (i = 0; i < floor((strlen(dbres)/(PARTIALBUFFERSIZE - 1))); i++) {
+
+            // clear partial buffer
+            strcpy(buf_partial, "");
+
+            // get one datagram
+            for (j = i * (PARTIALBUFFERSIZE - 1), k = 0;
+                 j < (i + 1) * (PARTIALBUFFERSIZE - 1);
+                 j++, k++)
+            {
+                buf_partial[k] = dbres[j];
+            }
+            buf_partial[k] = '\0';
+
+            // send it
             numbytes = sendto(
                 sockfd,
-                "teste",
-                strlen("teste"),
+                buf_partial,
+                strlen(buf_partial),
                 0,
                 (struct sockaddr *)&their_addr,
                 sin_size
             );
+
+            // increment bytes sent
+            total += numbytes;
 
             // check if it was sent correctly
             if (numbytes == -1) {
@@ -212,6 +244,42 @@ int main (int argc, char *argv[]) {
                 exit(1);
             }
         }
+
+        // send final datagram
+
+        // clear partial buffer
+        strcpy(buf_partial, "");
+
+        // get one datagram
+        for (j = i * (PARTIALBUFFERSIZE - 1), k = 0;
+             j < strlen(dbres);
+             j++, k++)
+        {
+            buf_partial[k] = dbres[j];
+        }
+        buf_partial[k] = '\0';
+
+        // send it
+        numbytes = sendto(
+            sockfd,
+            buf_partial,
+            strlen(buf_partial),
+            0,
+            (struct sockaddr *)&their_addr,
+            sin_size
+        );
+
+        // increment bytes sent
+        total += numbytes;
+
+        // check if it was sent correctly
+        if (numbytes == -1) {
+            printf("Error while sending the response");
+            exit(1);
+        }
+
+        printf("total bytes sent          = %d\n", total);
+        printf("expected bytes to be sent = %d\n", strlen(dbres));
 
     }
 
