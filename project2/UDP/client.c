@@ -72,6 +72,16 @@ int main(int argc, char *argv[]) {
     int total = 0;
     int packets_received = 0;
 
+    // variables for the time spent
+    int microseconds;
+    int milliseconds;
+
+    // temp file descriptor list for select()
+    fd_set read_fds;
+
+    // variable to store size of conector's address
+    int sin_size;
+
     if (argc != 5) {
         fprintf(stderr,"Usage: ./client HOSTNAME PORT REQ_CODE [PARAMS]\n");
         exit(1);
@@ -142,9 +152,6 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    // temp file descriptor list for select()
-    fd_set read_fds;
-
     // clear our set
     FD_ZERO(&read_fds);
 
@@ -152,7 +159,7 @@ int main(int argc, char *argv[]) {
     FD_SET(sockfd, &read_fds);
 
     // set the timeout to 3 seconds
-    tv.tv_usec = 3000000;
+    tv.tv_usec = 1500000;
 
     // initial timeout
     if (select(sockfd + 1, &read_fds, NULL, NULL, &tv) == -1) {
@@ -164,7 +171,7 @@ int main(int argc, char *argv[]) {
     strcpy(buf, "");
 
     // store size of conector's address
-    int sin_size = sizeof p;
+    sin_size = sizeof p;
 
     // receive the packetes
     while (FD_ISSET(sockfd, &read_fds)) {
@@ -196,6 +203,8 @@ int main(int argc, char *argv[]) {
         strcat(buf, buf_partial);
 
         printf("listener:  received packet is %d bytes long\n", numbytes);
+
+        // restart timer
         if (select(sockfd + 1, &read_fds, NULL, NULL, &tv) == -1) {
             perror("select");
             exit(4);
@@ -206,13 +215,13 @@ int main(int argc, char *argv[]) {
     buf[total] = '\0';
 
     // calculate time spent
-    int microseconds = (tv2.tv_sec - tv1.tv_sec) * 1000000 + ((int)tv2.tv_usec - (int)tv1.tv_usec);
-    int milliseconds = microseconds/1000;
+    microseconds = (tv2.tv_sec - tv1.tv_sec) * 1000000 + ((int)tv2.tv_usec - (int)tv1.tv_usec);
+    milliseconds = microseconds/1000;
 
-    printf("client: received '%s'\n",buf);
-    printf("\n\n\n");
+    // printf("client: received '%s'\n",buf);
+    // printf("\n\n\n");
     printf("Took %d us to execute\n", microseconds);
-    printf("number of bytes received = %d\n", total);
+    printf("number of bytes received   = %d\n", total);
     printf("number of packets received = %d\n", packets_received);
 
     // close the socket
