@@ -4,7 +4,7 @@ LDFLAGS += libjson-c.a -I ./lib/
 all: server client
 
 server:
-	$(CC) server.c database.c $(LDFLAGS) -o server.out
+	$(CC) server.c database.c $(LDFLAGS) -o server.out -lm
 
 client:
 	$(CC) client.c -o client.out
