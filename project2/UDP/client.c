@@ -68,6 +68,10 @@ int main(int argc, char *argv[]) {
     // time of th day literals
     struct timeval tv, tv1, tv2;
 
+    // initialize total bytes sent and packets sent
+    int total = 0;
+    int packets_received = 0;
+
     if (argc != 5) {
         fprintf(stderr,"Usage: ./client HOSTNAME PORT REQ_CODE [PARAMS]\n");
         exit(1);
@@ -159,9 +163,6 @@ int main(int argc, char *argv[]) {
     // clear final buffer
     strcpy(buf, "");
 
-    // store total number of bytes
-    int total = 0;
-
     // store size of conector's address
     int sin_size = sizeof p;
 
@@ -181,8 +182,9 @@ int main(int argc, char *argv[]) {
         // get time at the end of the request
         gettimeofday(&tv2, NULL);
 
-        // incremental total number of bytes
+        // incremental total number of bytes and packets received
         total += numbytes;
+        packets_received++;
 
         // check if response is ok
         if (numbytes == -1) {
@@ -208,7 +210,10 @@ int main(int argc, char *argv[]) {
     int milliseconds = microseconds/1000;
 
     printf("client: received '%s'\n",buf);
-    printf("Took %d us to execute \n", microseconds);
+    printf("\n\n\n");
+    printf("Took %d us to execute\n", microseconds);
+    printf("number of bytes received = %d\n", total);
+    printf("number of packets received = %d\n", packets_received);
 
     // close the socket
     close(sockfd);
