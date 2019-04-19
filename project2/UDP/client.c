@@ -178,6 +178,9 @@ int main(int argc, char *argv[]) {
             &sin_size
         );
 
+        // get time at the end of the request
+        gettimeofday(&tv2, NULL);
+
         // incremental total number of bytes
         total += numbytes;
 
@@ -199,9 +202,6 @@ int main(int argc, char *argv[]) {
 
     // set the final character of the final response
     buf[total] = '\0';
-
-    // get time at the end of the request
-    gettimeofday(&tv2, NULL);
 
     // calculate time spent
     int microseconds = (tv2.tv_sec - tv1.tv_sec) * 1000000 + ((int)tv2.tv_usec - (int)tv1.tv_usec);
