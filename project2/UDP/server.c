@@ -23,9 +23,8 @@
  */
 
 // max number of bytes we can get at once
-#define MAXDATASIZE 100
+#define MAXDATASIZE 150
 #define PARTIALBUFFERSIZE 63001
-#define MAXDATAPACKET 60000
 
 
 /*
@@ -59,9 +58,6 @@ int main (int argc, char *argv[]) {
     // variable to store address size
     socklen_t sin_size;
 
-    // struct to reap dead processes
-    struct sigaction sa;
-
     // string with maximum address length
     char s[INET6_ADDRSTRLEN];
 
@@ -91,6 +87,13 @@ int main (int argc, char *argv[]) {
 
     // store number of packets sent
     int packets_sent;
+
+    // variables for the time spent
+    int microseconds;
+    int milliseconds;
+
+    // string to store database response
+    char dbres[1048576];
 
     if (argc != 2) {
         fprintf(stderr,"Usage: ./server PORT\n");
@@ -142,11 +145,9 @@ int main (int argc, char *argv[]) {
     /*
     DATABASE CALLS TESTS
     */
-    test_database();
-    char dbres[1048576];
-
-    printf("%d\n", list_person_info_by_email("carlos_silva@gmail.com", dbres));
-    printf("%s\n", dbres);
+    // test_database();
+    // printf("%d\n", list_person_info_by_email("carlos_silva@gmail.com", dbres));
+    // printf("%s\n", dbres);
     /*
     END DATABASE CALLS TESTS
     */
@@ -159,7 +160,7 @@ int main (int argc, char *argv[]) {
         // store size of conector's address
         sin_size = sizeof their_addr;
 
-        // receive datagrams
+        // receive datagram request
         numbytes = recvfrom(
             sockfd,
             buf,
@@ -206,8 +207,8 @@ int main (int argc, char *argv[]) {
         gettimeofday(&tv2, NULL);
 
         // calculate time spent
-        int microseconds = (tv2.tv_sec - tv1.tv_sec) * 1000000 + ((int)tv2.tv_usec - (int)tv1.tv_usec);
-        int milliseconds = microseconds/1000;
+        microseconds = (tv2.tv_sec - tv1.tv_sec) * 1000000 + ((int)tv2.tv_usec - (int)tv1.tv_usec);
+        milliseconds = microseconds/1000;
 
         printf("Took %d us to execute \n", microseconds);
 
@@ -242,7 +243,7 @@ int main (int argc, char *argv[]) {
 
             // increment bytes and packets sent
             total += numbytes;
-            packets_sent += 1;
+            packets_sent++;
 
             // check if it was sent correctly
             if (numbytes == -1) {
@@ -277,7 +278,7 @@ int main (int argc, char *argv[]) {
 
         // increment bytes and packets sent
         total += numbytes;
-        packets_sent += 1;
+        packets_sent++;
 
         // check if it was sent correctly
         if (numbytes == -1) {
@@ -285,9 +286,9 @@ int main (int argc, char *argv[]) {
             exit(1);
         }
 
-        printf("total bytes sent          = %d\n", total);
-        printf("expected bytes to be sent = %d\n", strlen(dbres));
-        printf("number of packets sent = %d\n", packets_sent);
+        printf("total bytes sent                      = %d\n", total);
+        printf("expected bytes to be sent             = %d\n", strlen(dbres));
+        printf("number of packets sent                = %d\n", packets_sent);
         printf(
             "number of packets expected to be sent = %lf\n",
             floor((strlen(dbres)/(PARTIALBUFFERSIZE - 1))) + 1
