@@ -89,6 +89,9 @@ int main (int argc, char *argv[]) {
     // store total bytes sent
     int total;
 
+    // store number of packets sent
+    int packets_sent;
+
     if (argc != 2) {
         fprintf(stderr,"Usage: ./server PORT\n");
         exit(1);
@@ -181,6 +184,7 @@ int main (int argc, char *argv[]) {
             s,
             sizeof s
         );
+        printf("\n\n\n");
         printf("Server: got packet from %s\n", s);
 
         // print the received packet
@@ -207,8 +211,9 @@ int main (int argc, char *argv[]) {
 
         printf("Took %d us to execute \n", microseconds);
 
-        // initialize total bytes sent
+        // initialize total bytes sent and packets sent
         total = 0;
+        packets_sent = 0;
 
         // send initials datagrams
         for (i = 0; i < floor((strlen(dbres)/(PARTIALBUFFERSIZE - 1))); i++) {
@@ -235,8 +240,9 @@ int main (int argc, char *argv[]) {
                 sin_size
             );
 
-            // increment bytes sent
+            // increment bytes and packets sent
             total += numbytes;
+            packets_sent += 1;
 
             // check if it was sent correctly
             if (numbytes == -1) {
@@ -269,8 +275,9 @@ int main (int argc, char *argv[]) {
             sin_size
         );
 
-        // increment bytes sent
+        // increment bytes and packets sent
         total += numbytes;
+        packets_sent += 1;
 
         // check if it was sent correctly
         if (numbytes == -1) {
@@ -280,6 +287,11 @@ int main (int argc, char *argv[]) {
 
         printf("total bytes sent          = %d\n", total);
         printf("expected bytes to be sent = %d\n", strlen(dbres));
+        printf("number of packets sent = %d\n", packets_sent);
+        printf(
+            "number of packets expected to be sent = %lf\n",
+            floor((strlen(dbres)/(PARTIALBUFFERSIZE - 1))) + 1
+        );
 
     }
 
