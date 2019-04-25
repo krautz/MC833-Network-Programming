@@ -37,6 +37,20 @@ void sigchld_handler(int s)
     errno = saved_errno;
 }
 
+char* itoa(int val, int base){
+
+	static char buf[32] = {0};
+
+	int i = 30;
+
+	for(; val && i ; --i, val /= base)
+
+		buf[i] = "0123456789abcdef"[val % base];
+
+	return &buf[i+1];
+
+}
+
 
 /*
  * I get the socket address according to IP version.
@@ -91,10 +105,13 @@ int main (int argc, char *argv[]) {
     char buf[MAXDATASIZE], response[MAXDATASIZE];
 
     // received bytes from request
-    int numbytes;
+    int numbytes, numbytes_;
 
     // request parameter
     char param[150];
+
+    // string to send the number of bytes to be sent
+    char *bytesToBeSent;
 
     // time of th day literals
     struct timeval tv1, tv2;
@@ -200,6 +217,7 @@ int main (int argc, char *argv[]) {
         inet_ntop(their_addr.ss_family,
                   get_in_addr((struct sockaddr *)&their_addr),
                   s, sizeof s);
+        printf("\n\n\n");
         printf("Server: got connection from %s\n", s);
 
         // create a child process to deal with the request on that connection
@@ -238,11 +256,22 @@ int main (int argc, char *argv[]) {
 
             printf("Took %d us to execute \n", microseconds);
 
+            // return first response with number of bytes to be sent
+            bytesToBeSent = itoa(strlen(dbres), 10);
+            if ((numbytes_ =
+                send(new_fd, bytesToBeSent, strlen(bytesToBeSent), 0))
+                == -1)
+                printf("Error while sending response\n");
+
             // return the response from the command received
             if ((numbytes = send(new_fd, dbres, strlen(dbres), 0)) == -1)
                 printf("Error while sending response\n");
 
-            printf("server: sent %d bytes\n", numbytes);
+            printf(
+                "server: should have sent %d bytes\n",
+                strlen(dbres) + strlen(bytesToBeSent)
+            );
+            printf("server:             sent %d bytes\n", numbytes + numbytes_);
 
             // close child new socket
             close(new_fd);

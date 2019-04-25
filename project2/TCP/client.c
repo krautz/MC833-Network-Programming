@@ -35,6 +35,33 @@ void *get_in_addr(struct sockaddr *sa)
     return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
+int toString(char a[]) {
+  int c, sign, offset, n;
+
+  if (a[0] == '-') {  // Handle negative integers
+    sign = -1;
+  }
+
+  if (sign == -1) {  // Set starting position to convert
+    offset = 1;
+  }
+  else {
+    offset = 0;
+  }
+
+  n = 0;
+
+  for (c = offset; a[c] != '\0'; c++) {
+    n = n * 10 + a[c] - '0';
+  }
+
+  if (sign == -1) {
+    n = -n;
+  }
+
+  return n;
+}
+
 
 /*
  * I am a websocket TCP client.
@@ -44,7 +71,7 @@ int main(int argc, char *argv[]) {
     int sockfd, numbytes;
 
     // buffer to read response from
-    char buf[MAXDATASIZE];
+    char buf[MAXDATASIZE], partial_buf[MAXDATASIZE];
 
     // server address variables
     struct addrinfo hints, *servinfo, *p;
@@ -60,6 +87,19 @@ int main(int argc, char *argv[]) {
 
     // time of th day literals
     struct timeval tv1, tv2;
+
+    // total bytes received
+    int total = 0;
+
+    // auxiliar flag
+    int flag = 1;
+
+    // loop variable
+    int i = 0;
+
+    // number of bytes to be received
+    int max = 1;
+    char bytesToBeReceived[33];
 
     if (argc != 5) {
         fprintf(stderr,"Usage: ./client HOSTNAME PORT REQ_CODE [PARAMS]\n");
@@ -127,17 +167,44 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    // receive response from server, if it's ok print it
-    int total = 0;
-    while (total < 390696) {
-        if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+    // clear final buffer
+    strcpy(buf, "");
+
+    // receive response from server
+    while (total < max) {
+        if ((numbytes = recv(sockfd, partial_buf, MAXDATASIZE-1, 0)) == -1) {
             printf("recv error");
             exit(1);
         }
-        total += numbytes;
+
+        // concatenate partial to final buffer
+        strcat(buf, partial_buf);
+
+        // print number of bytes received
         printf("client: partial received %d bytes\n",numbytes);
+
+        // increment total bytes received
+        total += numbytes;
+
+        // first packet -> get number of bytes to be received
+        if (flag == 1) {
+            i = 0;
+            while (i < total && buf[i] != '{') {
+                bytesToBeReceived[i] = buf[i];
+                i++;
+            }
+            // case first packet it's to small, do it again with the next one
+            if (i == total) {
+                max = i + 1;
+            } else {
+                flag = 0;
+                bytesToBeReceived[i] = '\0';
+                max = toString(bytesToBeReceived);
+                max += strlen(bytesToBeReceived);
+            }
+        }
     }
-    buf[390696] = '\0';
+    buf[total] = '\0';
 
     // get time at the end of the request
     gettimeofday(&tv2, NULL);
@@ -147,8 +214,8 @@ int main(int argc, char *argv[]) {
     int milliseconds = microseconds/1000;
 
     // printf("client: received '%s'\n",buf);
+    printf("client: had to receive %d bytes\n", max);
     printf("client: total received %d bytes\n", total);
-
     printf("Took %d us to execute \n", microseconds);
 
     // close the socket
