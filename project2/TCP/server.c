@@ -239,8 +239,10 @@ int main (int argc, char *argv[]) {
             printf("Took %d us to execute \n", microseconds);
 
             // return the response from the command received
-            if (send(new_fd, dbres, strlen(dbres), 0) == -1)
+            if ((numbytes = send(new_fd, dbres, strlen(dbres), 0)) == -1)
                 printf("Error while sending response\n");
+
+            printf("server: sent %d bytes\n", numbytes);
 
             // close child new socket
             close(new_fd);

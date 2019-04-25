@@ -128,11 +128,16 @@ int main(int argc, char *argv[]) {
     }
 
     // receive response from server, if it's ok print it
-    if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
-        printf("recv error");
-        exit(1);
+    int total = 0;
+    while (total < 390696) {
+        if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+            printf("recv error");
+            exit(1);
+        }
+        total += numbytes;
+        printf("client: partial received %d bytes\n",numbytes);
     }
-    buf[numbytes] = '\0';
+    buf[390696] = '\0';
 
     // get time at the end of the request
     gettimeofday(&tv2, NULL);
@@ -141,7 +146,8 @@ int main(int argc, char *argv[]) {
     int microseconds = (tv2.tv_sec - tv1.tv_sec) * 1000000 + ((int)tv2.tv_usec - (int)tv1.tv_usec);
     int milliseconds = microseconds/1000;
 
-    printf("client: received '%s'\n",buf);
+    // printf("client: received '%s'\n",buf);
+    printf("client: total received %d bytes\n", total);
 
     printf("Took %d us to execute \n", microseconds);
 
