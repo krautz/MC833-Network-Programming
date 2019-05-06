@@ -76,7 +76,7 @@ int main (int argc, char *argv[]) {
     // request parameter
     char param[150];
 
-    // time of th day literals
+    // time of the day literals
     struct timeval tv1, tv2;
 
     // loop variables
@@ -145,9 +145,9 @@ int main (int argc, char *argv[]) {
     /*
     DATABASE CALLS TESTS
     */
-    // test_database();
-    // printf("%d\n", list_person_info_by_email("carlos_silva@gmail.com", dbres));
-    // printf("%s\n", dbres);
+    test_database();
+    printf("%d\n", list_person_info_by_email("carlos_silva@gmail.com", dbres));
+    printf("%s\n", dbres);
     /*
     END DATABASE CALLS TESTS
     */
@@ -197,6 +197,7 @@ int main (int argc, char *argv[]) {
         if (strlen(buf) >= 3)
             strcpy(param, buf + 2);
 
+        // execute the request
         if (buf[0] == '1') {
             list_person_info_by_email(param, dbres);
         } else {

@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
     // string to store request
     char request[150];
 
-    // time of th day literals
+    // time of the day literals
     struct timeval tv, tv1, tv2;
 
     // initialize total bytes sent and packets sent
@@ -119,7 +119,7 @@ int main(int argc, char *argv[]) {
         break;
     }
 
-    // none of the results could connect to the server
+    // none of the results could create the websocket
     if (p == NULL) {
         printf("Client failed to connect\n");
         return 2;
@@ -158,7 +158,7 @@ int main(int argc, char *argv[]) {
     // add the the socked descriptor to the set
     FD_SET(sockfd, &read_fds);
 
-    // set the timeout to 3 seconds
+    // set the timeout to 1.5 seconds
     tv.tv_usec = 1500000;
 
     // initial timeout
