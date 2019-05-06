@@ -37,17 +37,17 @@ void sigchld_handler(int s)
     errno = saved_errno;
 }
 
+// convert integer to string number
 char* itoa(int val, int base){
 
-	static char buf[32] = {0};
+    static char buf[32] = {0};
 
-	int i = 30;
+    int i = 30;
 
-	for(; val && i ; --i, val /= base)
+    for(; val && i ; --i, val /= base)
+        buf[i] = "0123456789abcdef"[val % base];
 
-		buf[i] = "0123456789abcdef"[val % base];
-
-	return &buf[i+1];
+    return &buf[i+1];
 
 }
 
@@ -113,7 +113,7 @@ int main (int argc, char *argv[]) {
     // string to send the number of bytes to be sent
     char *bytesToBeSent;
 
-    // time of th day literals
+    // time of the day literals
     struct timeval tv1, tv2;
 
     if (argc != 2) {
@@ -241,6 +241,7 @@ int main (int argc, char *argv[]) {
             // get time of the day
             gettimeofday(&tv1, NULL);
 
+            // execute the request
             if (buf[0] == '1') {
                 list_person_info_by_email(param, dbres);
             } else {

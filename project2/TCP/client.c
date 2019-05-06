@@ -35,31 +35,32 @@ void *get_in_addr(struct sockaddr *sa)
     return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
+// convert string number to integer
 int toString(char a[]) {
-  int c, sign, offset, n;
+    int c, sign, offset, n;
 
-  if (a[0] == '-') {  // Handle negative integers
-    sign = -1;
-  }
+    if (a[0] == '-') {  // Handle negative integers
+        sign = -1;
+    }
 
-  if (sign == -1) {  // Set starting position to convert
-    offset = 1;
-  }
-  else {
-    offset = 0;
-  }
+    if (sign == -1) {  // Set starting position to convert
+        offset = 1;
+    }
+    else {
+        offset = 0;
+    }
 
-  n = 0;
+    n = 0;
 
-  for (c = offset; a[c] != '\0'; c++) {
-    n = n * 10 + a[c] - '0';
-  }
+    for (c = offset; a[c] != '\0'; c++) {
+        n = n * 10 + a[c] - '0';
+    }
 
-  if (sign == -1) {
-    n = -n;
-  }
+    if (sign == -1) {
+        n = -n;
+    }
 
-  return n;
+    return n;
 }
 
 
@@ -85,7 +86,7 @@ int main(int argc, char *argv[]) {
     // string to store request
     char request[150];
 
-    // time of th day literals
+    // time of the day literals
     struct timeval tv1, tv2;
 
     // total bytes received
