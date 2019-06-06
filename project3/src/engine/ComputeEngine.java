@@ -1,5 +1,7 @@
+
 package engine;
 
+import java.rmi.RMISecurityManager;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -9,42 +11,30 @@ import compute.Task;
 
 public class ComputeEngine implements Compute {
 
-	// constructor
     public ComputeEngine() {
-        // call parent class (Compute)
         super();
     }
 
-	// first method
     public <T> T executeTask(Task<T> t) {
         return t.execute();
     }
 
-	// main
     public static void main(String[] args) {
-    	// check for security manager existance if it does not exist, create a new one
+    	System.setProperty("java.security.policy", "src/security.policy");
+    	System.setSecurityManager(new RMISecurityManager());
+    	
         if (System.getSecurityManager() == null) {
             System.setSecurityManager(new SecurityManager());
         }
         try {
-        	// set the object name
             String name = "Compute";
-            
-            // create the new engine
             Compute engine = new ComputeEngine();
-            
-            // create the stub to an anonymous port
             Compute stub =
                 (Compute) UnicastRemoteObject.exportObject(engine, 0);
             Registry registry = LocateRegistry.getRegistry();
-            
-            // bind the object name and stub
             registry.rebind(name, stub);
             System.out.println("ComputeEngine bound");
-        }
-        
-        // any error ocurred during the creation: print and abort
-        catch (Exception e) {
+        } catch (Exception e) {
             System.err.println("ComputeEngine exception:");
             e.printStackTrace();
         }

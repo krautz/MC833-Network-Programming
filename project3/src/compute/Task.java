@@ -1,7 +1,5 @@
-package compute;
 
-import java.rmi.Remote;
-import java.rmi.RemoteException;
+package compute;
 
 public interface Task<T> {
     T execute();
