@@ -3,6 +3,10 @@ package client;
 import java.rmi.RMISecurityManager;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.Scanner;
+
+import org.json.JSONException;
+
 import java.math.BigDecimal;
 import compute.Compute;
 
@@ -19,6 +23,7 @@ public class ComputePi {
         if (System.getSecurityManager() == null) {
             System.setSecurityManager(new SecurityManager());
         }
+        Scanner s = new Scanner(System.in);
         
         try {
         	// set the object name
@@ -29,14 +34,29 @@ public class ComputePi {
             Compute comp = (Compute) registry.lookup(name);
             
             // send request to execute Pi task
-            Pi task = new Pi(Integer.parseInt("300"));
-            BigDecimal pi = comp.executeTask(task);
-            System.out.println(pi);
+//            Pi task = new Pi(Integer.parseInt("300"));
+//            BigDecimal pi = comp.executeTask(task);
+//            System.out.println(pi);
             
             // send request to execute helloWorld task
-            HelloWorld hellotask = new HelloWorld();
-            String stm = comp.executeTask(hellotask);
-            System.out.println(stm);  
+            String param = s.nextLine();
+            
+            long start = System.currentTimeMillis();
+            
+            HelloWorld hellotask = new HelloWorld(param);
+            try {
+            	String stm = comp.executeTask(hellotask);
+            	System.out.println(stm);
+            }
+            
+            catch (JSONException j) {
+            	System.out.println("error");
+            }
+            
+            long end = System.currentTimeMillis();
+        	
+        	System.out.println("TEMPO SERVIDOR: " + (end - start));
+              
         } 
         
         // any error ocurred during the creation: print and abort
