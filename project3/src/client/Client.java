@@ -10,7 +10,7 @@ import org.json.JSONException;
 import java.math.BigDecimal;
 import compute.Compute;
 
-public class ComputePi {
+public class Client {
 	
 	// main
 	public static void main(String args[]) {
@@ -33,11 +33,6 @@ public class ComputePi {
             Registry registry = LocateRegistry.getRegistry("");
             Compute comp = (Compute) registry.lookup(name);
             
-            // send request to execute Pi task
-//            Pi task = new Pi(Integer.parseInt("300"));
-//            BigDecimal pi = comp.executeTask(task);
-//            System.out.println(pi);
-            
             // send request to execute helloWorld task
             String param = s.nextLine();
             
@@ -50,7 +45,7 @@ public class ComputePi {
             }
             
             catch (JSONException j) {
-            	System.out.println("error");
+            	System.out.println(j);
             }
             
             long end = System.currentTimeMillis();
