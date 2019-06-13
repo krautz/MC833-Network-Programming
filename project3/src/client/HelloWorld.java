@@ -26,35 +26,8 @@ public class HelloWorld implements Task<String>, Serializable {
     	// get start time
     	long start = System.currentTimeMillis();
 
-    	
-    	// create string to receive database file
-    	String sb = "";
-		try {
-			// open database file
-			BufferedReader reader = new BufferedReader(new FileReader("/home/krautz/mc833/project3/src/database.txt"));
-			
-			// get each line of the file and write it to the final buffer
-			String line = reader.readLine();
-			while(line != null) { 
-				sb = sb + line;
-				line = reader.readLine();
-			}
-			
-			// close file
-			reader.close();
-			
-			// remove all whitespaces from the buffer
-			sb = sb.replaceAll("\\s+","");
-			
-			// print it
-			System.out.println(sb);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
     	// create object with the opened file
-    	JSONObject my_obj = new JSONObject(sb);
+    	JSONObject my_obj = Utils.openFile();
     	
     	// iterate over object keys (get the keys)
     	Iterator<String> a = my_obj.keys();
@@ -63,7 +36,7 @@ public class HelloWorld implements Task<String>, Serializable {
     	
 
     	// modify given key value
-    	my_obj.getJSONObject(key).put("name", "ble");
+    	my_obj.getJSONObject(key).put("name", "blebloblu");
     	
     	// get given object key field
     	String name = my_obj.getJSONObject(key).getString("name");
@@ -71,24 +44,8 @@ public class HelloWorld implements Task<String>, Serializable {
     	// get end time
     	long end = System.currentTimeMillis();
     	
-    	// serialize object
-    	System.out.println(my_obj.toString());
-    	
     	// write it to database file
-    	try {
-    		// open file
-			FileWriter file = new FileWriter("/home/krautz/mc833/project3/src/database.txt");
-			
-			// write to it
-			file.write(my_obj.toString());
-			
-			// close file
-			file.close();
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    	Utils.writeFile(my_obj);
     	
     	// print total time spent
     	System.out.println("TEMPO SERVIDOR: " + (end - start));
