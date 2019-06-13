@@ -41,10 +41,10 @@ public class ComputeEngine implements Compute {
             // create the new engine
             Compute engine = new ComputeEngine();
             
-            // create the stub to an anonymous port
+            // create the stub to an port 1099
             Compute stub =
                 (Compute) UnicastRemoteObject.exportObject(engine, 0);
-            Registry registry = LocateRegistry.getRegistry();
+            Registry registry = LocateRegistry.createRegistry(1099);
             
             // bind the object name and stub
             registry.rebind(name, stub);
