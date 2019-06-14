@@ -3,11 +3,6 @@ package client;
 import org.json.JSONException;
 import org.json.JSONObject;
 import compute.Task;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Iterator;
 
