@@ -5,6 +5,8 @@ import java.rmi.RMISecurityManager;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Scanner;
+
 import compute.Compute;
 import compute.Task;
 
@@ -24,6 +26,13 @@ public class ComputeEngine implements Compute {
     // main
     public static void main(String[] args) {
     	
+    	// create scanner
+    	Scanner scanner = new Scanner(System.in);
+    	
+    	// get chosen server name
+    	System.out.println("Insira o nome do server:");
+    	String name = scanner.nextLine();
+    	
     	// set security policy
     	System.setProperty("java.security.policy", "src/security.policy");
     	System.setSecurityManager(new RMISecurityManager());
@@ -33,10 +42,7 @@ public class ComputeEngine implements Compute {
             System.setSecurityManager(new SecurityManager());
         }
         
-        try {
-        	// set the object name
-            String name = "Compute";
-            
+        try {            
             // create the new engine
             Compute engine = new ComputeEngine();
             
