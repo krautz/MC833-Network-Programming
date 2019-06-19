@@ -20,8 +20,6 @@ public class Command1 implements Task<String>, Serializable {
     	
     	// get start time
     	long start = System.currentTimeMillis();
-    	
-    	System.out.println(this.education);
 
     	// create object with the opened file
     	JSONObject database = Utils.openFile();
