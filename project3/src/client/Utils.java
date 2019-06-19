@@ -47,7 +47,7 @@ public class Utils {
     	try {
     		
     		// open file
-			FileWriter file = new FileWriter("/home/krautz/mc833/project3/src/database.txt");
+			FileWriter file = new FileWriter("./src/database.txt");
 			
 			// write to it
 			file.write(obj.toString());
