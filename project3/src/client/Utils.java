@@ -18,7 +18,7 @@ public class Utils {
     	
 		try {
 			// open database file
-			BufferedReader reader = new BufferedReader(new FileReader("/home/krautz/mc833/project3/src/database.txt"));
+			BufferedReader reader = new BufferedReader(new FileReader("./src/database.txt"));
 			
 			// get each line of the file and write it to the final buffer
 			String line = reader.readLine();
