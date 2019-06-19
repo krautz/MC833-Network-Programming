@@ -16,6 +16,15 @@ public class Client {
 	// main
 	public static void main(String args[]) throws RemoteException, NotBoundException {
 		
+		// create scanner
+		Scanner scanner = new Scanner(System.in);
+		
+		// get server IP
+		System.out.println("Insira o nome do server:");
+		String name = scanner.nextLine();
+		System.out.println("Insira o IP do server:");
+		String serverIp = scanner.nextLine();
+		
 		// get command
         System.out.println("Insira o comando seguido dos parametros separado por '-':");
         System.out.println("Exemplo Comando 1: 1-Engenharia da computacao ** listar todas as pessoas formadas em um determinado curso");
@@ -24,11 +33,10 @@ public class Client {
         System.out.println("Exemplo Comando 4: 4-carlos_silva@gmail.com ** dado o email do perfil, retornar sua experiência");
         System.out.println("Exemplo Comando 5: 5 ** listar todas as informações de todos os perfis");
         System.out.println("Exemplo Comando 6: 6-carlos_silva@gmail.com ** dado o email de um perfil, retornar suas informações");
-        Scanner scanner = new Scanner(System.in);
         String command = scanner.nextLine();
         String[] commands = command.split("-");
         scanner.close();
-        
+
         // get time
         long start = System.currentTimeMillis();
     	
@@ -41,11 +49,8 @@ public class Client {
             System.setSecurityManager(new SecurityManager());
         }
         
-        // set the object name
-        String name = "Compute";
-        
         // create a registry searching for the server
-        Registry registry = LocateRegistry.getRegistry("");
+        Registry registry = LocateRegistry.getRegistry(serverIp, 1099);
         Compute comp = (Compute) registry.lookup(name);
         
         // create response string
